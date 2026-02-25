@@ -3,6 +3,8 @@ backend/.gradle/
 backend/build/
 backend/.idea/
 backend/*.log
+backend/gradle-wrapper.jar
+*.jar
 
 # Frontend
 frontend/node_modules/

@@ -2,7 +2,7 @@
 FROM gradle:7.6.1-jdk17 AS build
 WORKDIR /app
 COPY . .
-RUN ./gradlew bootJar --no-daemon
+RUN gradle bootJar --no-daemon
 
 # Stage 2: Run
 FROM eclipse-temurin:17-jre-jammy
