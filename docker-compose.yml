@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  db:
+    image: mariadb:10.6
+    container_name: kids-db
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: sdno
+    ports:
+      - "3307:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+  backend:
+    build: ./backend
+    container_name: kids-backend
+    restart: always
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://db:3306/sdno?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build: ./frontend
+    container_name: kids-frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+
+volumes:
+  mariadb_data:
