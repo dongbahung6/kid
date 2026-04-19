@@ -2,7 +2,8 @@ import { useState, useCallback } from 'react'
 import axios from 'axios'
 import { useLanguage } from '../context/LanguageContext'
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080'
+const envApiBase = import.meta.env.VITE_API_BASE;
+const API_BASE = (typeof envApiBase !== 'undefined' && envApiBase !== null) ? envApiBase : 'http://localhost:8080';
 
 // Parse các từ từ input string
 function parseWords(input) {

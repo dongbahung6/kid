@@ -3,7 +3,8 @@ import axios from 'axios'
 import { useLanguage } from '../context/LanguageContext'
 import { getSpellingText, speak } from '../utils/spellingUtils'
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080'
+const envApiBase = import.meta.env.VITE_API_BASE;
+const API_BASE = (typeof envApiBase !== 'undefined' && envApiBase !== null) ? envApiBase : 'http://localhost:8080';
 
 // Màu gradient ngẫu nhiên cho card
 const GRADIENTS = [

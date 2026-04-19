@@ -1,7 +1,8 @@
 import { createContext, useState, useEffect, useContext } from 'react'
 import axios from 'axios'
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080'
+const envApiBase = import.meta.env.VITE_API_BASE;
+const API_BASE = (typeof envApiBase !== 'undefined' && envApiBase !== null) ? envApiBase : 'http://localhost:8080';
 
 // Attach JWT token to every request if available
 axios.interceptors.request.use((config) => {
