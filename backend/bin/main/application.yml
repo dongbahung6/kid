@@ -37,3 +37,5 @@ logging:
 app:
   jwtSecret: ${JWT_SECRET:h4T9W1zC7eKqXbL3yN5vG8zM0rP4sF1aE6uB2nD5oI8V0wH7jQ9xZk2mA3dR6tY8pL}
   jwtExpirationMs: ${JWT_EXPIRATION_MS:86400000}
+  frontendUrl: ${FRONTEND_URL:http://localhost:5173}
+  allowedOrigins: ${ALLOWED_ORIGINS:http://localhost:5173}
