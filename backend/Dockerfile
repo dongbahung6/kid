@@ -2,6 +2,7 @@
 FROM gradle:8.5-jdk17 AS build
 WORKDIR /app
 COPY . .
+RUN curl -I https://plugins.gradle.org
 RUN gradle bootJar --no-daemon
 
 # Stage 2: Run

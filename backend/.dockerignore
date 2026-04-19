@@ -1,9 +1,9 @@
-.git
-build
 .gradle
+build
 bin
 out
+.idea
+.vscode
 *.log
 .env
 *.env
-
