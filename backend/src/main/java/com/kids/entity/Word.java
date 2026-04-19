@@ -15,6 +15,17 @@ import lombok.NoArgsConstructor;
 public class Word {
 
     @Id
-    @Column(name = "value", nullable = false, length = 255, columnDefinition = "VARCHAR(255) COLLATE utf8mb4_bin")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "value", nullable = false, length = 255)
     private String value;
+
+    @Column(name = "language", nullable = false, length = 10)
+    @Builder.Default
+    private String language = "VI";
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User owner;
 }

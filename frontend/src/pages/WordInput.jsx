@@ -1,25 +1,27 @@
 import { useState, useCallback } from 'react'
 import axios from 'axios'
+import { useLanguage } from '../context/LanguageContext'
+
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080'
 
 // Parse các từ từ input string
-// Separator: dấu phẩy, chấm phẩy, gạch đứng, space, tab, newline
 function parseWords(input) {
     if (!input || !input.trim()) return []
     return input
-        // Thay tất cả separator (bao gồm whitespace) thành dấu phẩy
-        .replace(/[\r\n]+/g, ',')   // xuống dòng → phẩy
-        .replace(/[;|]+/g, ',')     // ; và | → phẩy
-        .split(',')                  // tách theo phẩy
-        .flatMap(part => part.trim().split(/\s+/)) // tách thêm theo space bên trong mỗi phần
+        .replace(/[\r\n]+/g, ',')
+        .replace(/[;|]+/g, ',')
+        .split(',')
+        .flatMap(part => part.trim().split(/\s+/))
         .map(s => s.trim())
         .filter(s => s.length > 0)
-        .filter((v, i, arr) => arr.indexOf(v) === i) // loại trùng
+        .filter((v, i, arr) => arr.indexOf(v) === i)
 }
 
 export default function WordInput() {
+    const { language } = useLanguage()   // dùng ngôn ngữ từ navbar
     const [input, setInput] = useState('')
     const [loading, setLoading] = useState(false)
-    const [alert, setAlert] = useState(null) // { type: 'success'|'error', message, data }
+    const [alert, setAlert] = useState(null)
 
     const preview = parseWords(input)
 
@@ -31,7 +33,7 @@ export default function WordInput() {
         setLoading(true)
         setAlert(null)
         try {
-            const res = await axios.post('/api/words', { input })
+            const res = await axios.post(`${API_BASE}/api/words`, { input, language })
             const data = res.data
             setAlert({
                 type: 'success',
@@ -47,7 +49,7 @@ export default function WordInput() {
         } finally {
             setLoading(false)
         }
-    }, [input, preview])
+    }, [input, preview, language])
 
     return (
         <div>
@@ -60,7 +62,18 @@ export default function WordInput() {
 
             <div className="card">
                 <div className="form-group">
-                    <label htmlFor="word-input">Danh sách từ</label>
+                    <label htmlFor="word-input">Danh sách từ
+                        <span style={{
+                            marginLeft: '0.5rem',
+                            fontSize: '0.75rem',
+                            padding: '0.15rem 0.5rem',
+                            borderRadius: '4px',
+                            background: language === 'VI' ? 'rgba(59,130,246,0.15)' : 'rgba(16,185,129,0.15)',
+                            color: language === 'VI' ? '#60a5fa' : '#6ee7b7',
+                        }}>
+                            {language === 'VI' ? '🇻🇳 Tiếng Việt' : '🇺🇸 Tiếng Anh'}
+                        </span>
+                    </label>
                     <textarea
                         id="word-input"
                         placeholder="Ví dụ: hùng, dũng, minh, lâm&#10;Hoặc: hùng; dũng | minh"

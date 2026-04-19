@@ -10,5 +10,5 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DeleteWordsRequest {
-    private List<String> words;
+    private List<Long> ids;
 }

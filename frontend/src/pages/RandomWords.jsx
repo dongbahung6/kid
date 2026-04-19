@@ -1,6 +1,9 @@
 import { useState, useCallback } from 'react'
 import axios from 'axios'
-import { speak, getSpellingText } from '../utils/spellingUtils'
+import { useLanguage } from '../context/LanguageContext'
+import { getSpellingText, speak } from '../utils/spellingUtils'
+
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080'
 
 // Màu gradient ngẫu nhiên cho card
 const GRADIENTS = [
@@ -19,9 +22,11 @@ function getGradient(index) {
 }
 
 export default function RandomWords() {
+    const { language } = useLanguage()
     const [count, setCount] = useState(5)
     const [wordLength, setWordLength] = useState('')
     const [searchPattern, setSearchPattern] = useState('')
+    const [includeAdmin, setIncludeAdmin] = useState(true)
     const [words, setWords] = useState([])
     const [loading, setLoading] = useState(false)
     const [alert, setAlert] = useState(null)
@@ -41,7 +46,7 @@ export default function RandomWords() {
         try {
             const lengthQuery = wordLength ? `&length=${wordLength}` : ''
             const searchQuery = searchPattern ? `&search=${encodeURIComponent(searchPattern)}` : ''
-            const res = await axios.get(`/api/words/random?count=${count}${lengthQuery}${searchQuery}`)
+            const res = await axios.get(`${API_BASE}/api/words/random?count=${count}${lengthQuery}${searchQuery}&language=${language}&includeAdmin=${includeAdmin}`)
             const data = res.data
             if (data.words.length === 0) {
                 let msg = 'Không có từ nào thỏa mãn điều kiện.'
@@ -55,7 +60,7 @@ export default function RandomWords() {
                 if (data.count < count && !wordLength && !searchPattern) {
                     setAlert({
                         type: 'success',
-                        message: `Chỉ có ${data.count} từ trong DB. Đã hiển thị toàn bộ.`,
+                        message: `Chỉ có ${data.count} từ khả dụng. Đã hiển thị toàn bộ.`,
                     })
                 }
             }
@@ -65,20 +70,20 @@ export default function RandomWords() {
         } finally {
             setLoading(false)
         }
-    }, [count, wordLength, searchPattern])
+    }, [count, wordLength, searchPattern, language, includeAdmin])
 
-    const handleSpeak = (word) => {
-        const spellingText = getSpellingText(word);
-        setSpeakingWord(word);
-        speak(spellingText, () => setSpeakingWord(null));
+    const handleSpeak = (wordValue) => {
+        const spellingText = getSpellingText(wordValue, language);
+        setSpeakingWord(wordValue);
+        speak(spellingText, () => setSpeakingWord(null), language);
     }
 
-    const handleDeleteSingle = async (wordToDelete) => {
-        if (!window.confirm(`Xóa từ "${wordToDelete}"?`)) return
+    const handleDeleteSingle = async (wordObj) => {
+        if (!window.confirm(`Xóa từ "${wordObj.value}"?`)) return
 
         try {
-            await axios.delete('/api/words', { data: { words: [wordToDelete] } })
-            setWords(prev => prev.filter(w => w !== wordToDelete))
+            await axios.delete(`${API_BASE}/api/words`, { data: { ids: [wordObj.id] } })
+            setWords(prev => prev.filter(w => w.id !== wordObj.id))
         } catch (err) {
             const msg = err.response?.data?.message || err.message || 'Lỗi khi xóa từ'
             setAlert({ type: 'error', message: msg })
@@ -141,6 +146,17 @@ export default function RandomWords() {
                         />
                     </div>
 
+                    <div className="form-group" style={{ flex: '1' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', fontSize: '0.8rem' }}>
+                            <input
+                                type="checkbox"
+                                checked={includeAdmin}
+                                onChange={e => setIncludeAdmin(e.target.checked)}
+                            />
+                            Bao gồm từ của Admin
+                        </label>
+                    </div>
+
                     <div style={{ display: 'flex', gap: '0.4rem', flex: '2', alignSelf: 'flex-end', marginBottom: '0.1rem' }}>
                         <button
                             className="btn btn-primary btn-full"
@@ -149,7 +165,7 @@ export default function RandomWords() {
                             id="btn-fetch-random"
                             style={{ height: '42px' }}
                         >
-                            {loading ? <span className="spinner"></span> : <>🎲 Hiện {count} từ</>}
+                            {loading ? <span className="spinner" style={{ width: '16px', height: '16px', margin: 0 }}></span> : <>🎲 Hiện {count} từ</>}
                         </button>
 
                         <button
@@ -221,11 +237,11 @@ export default function RandomWords() {
                                     #{index + 1}
                                 </div>
                                 <div
-                                    className={`word-card-text ${speakingWord === word ? 'speaking-pulse' : ''}`}
-                                    onClick={() => handleSpeak(word)}
+                                    className={`word-card-text ${speakingWord === word.value ? 'speaking-pulse' : ''}`}
+                                    onClick={() => handleSpeak(word.value)}
                                     style={{ cursor: 'pointer' }}
                                 >
-                                    {word}
+                                    {word.value}
                                 </div>
                             </div>
                         ))}

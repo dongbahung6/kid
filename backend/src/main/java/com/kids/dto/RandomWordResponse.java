@@ -12,6 +12,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RandomWordResponse {
-    private List<String> words;
+    private List<com.kids.entity.Word> words;
     private int count;
 }
