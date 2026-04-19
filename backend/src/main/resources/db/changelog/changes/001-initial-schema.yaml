@@ -34,9 +34,7 @@ databaseChangeLog:
       id: 2
       author: antigravity
       changes:
-        - dropPrimaryKey:
-            tableName: words
-        - addColumn:
+        - createTable:
             tableName: words
             columns:
               - column:
@@ -45,6 +43,11 @@ databaseChangeLog:
                   autoIncrement: true
                   constraints:
                     primaryKey: true
+                    nullable: false
+              - column:
+                  name: value
+                  type: varchar(255)
+                  constraints:
                     nullable: false
               - column:
                   name: language
